@@ -26,7 +26,10 @@ namespace {
 
 constexpr int kFirstEquipmentSlot = 1;
 constexpr int kLastEquipmentSlot = 19;
-constexpr int kEnchantSlots = 7;
+// Slots 0/1 are the explicit permanent and temporary enchants. Later slots
+// can mirror random-property enchants, which are already applied from the
+// separate RANDOM_PROPERTIES_ID field below and must not be counted twice.
+constexpr int kExplicitEnchantSlots = 2;
 
 bool IsBroken(const uint8_t *descriptor) {
     if (descriptor == nullptr)
@@ -74,7 +77,7 @@ int __fastcall Script_GetEquippedHitBonuses(void *L) {
         const int suffix = Game::Read<int32_t>(
             descriptor, Offsets::OFF_DESCRIPTOR_RANDOM_PROPERTY);
         Item::StatAccum::ApplyRandomSuffix(stats, suffix, +1);
-        for (int enchantSlot = 0; enchantSlot < kEnchantSlots; ++enchantSlot) {
+        for (int enchantSlot = 0; enchantSlot < kExplicitEnchantSlots; ++enchantSlot) {
             const uint32_t enchantID = Game::Read<uint32_t>(descriptor,
                 Offsets::OFF_DESCRIPTOR_ENCHANTMENT_ID
                     + enchantSlot * Offsets::DESCRIPTOR_ENCHANTMENT_SLOT_STRIDE);
