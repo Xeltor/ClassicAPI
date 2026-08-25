@@ -290,6 +290,15 @@ Download the prebuilt `ClassicAPI.dll` from the
 3. Add `ClassicAPI.dll` to `dlls.txt`.
 4. Launch the game with `VanillaFixes.exe`.
 
+If a launcher owns and repairs the stock `ClassicAPI.dll`, do not overwrite
+that managed path with a fork: the launcher can silently restore it on the next
+verification pass. Give the fork a distinct filename such as
+`classicapi-custom.dll`, copy that file into the game directory, and reference
+the custom filename from `dlls.txt` instead of the managed `ClassicAPI.dll`
+entry. If the loader keeps a resolved `dlls.txt.cache`, let it regenerate the
+cache or update the corresponding resolved path while the game and launcher are
+closed. This is the same durable pattern used for custom Nampower builds.
+
 The bundled `!!!ClassicAPI` addon ships *inside* the DLL — no separate
 addon download or install step needed.
 
