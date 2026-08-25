@@ -11015,6 +11015,28 @@ player object is available. It is read-only and does not select, resolve, or
 name the target. The pair is read from the same CGPlayer fields used by the
 stock combo-point function.
 
+### `C_PlayerInfo.GetEquippedHitBonuses()`
+
+Returns the local player's additive melee, ranged, and spell hit percentages
+from currently equipped, non-broken items, followed by the number of occupied
+equipment slots inspected:
+
+```lua
+local meleeHit, rangedHit, spellHit, equipped =
+    C_PlayerInfo.GetEquippedHitBonuses()
+```
+
+The aggregate includes each item's cached on-equip spells, random property,
+and live permanent/temporary enchantment slots. Values use Vanilla's native
+percentage units, not later-expansion combat-rating points. A broken item is
+excluded because it grants no combat stats.
+
+Returns `nil` before the local player exists or if any equipped item's cache
+record is unavailable. It never returns a knowingly partial total. Talents and
+non-equipment auras are deliberately outside this function; callers can keep
+those as separate capability gaps instead of silently labeling gear-only hit
+as a complete character total.
+
 ### `C_PlayerInfo.GUIDIsPlayer(guid)` / `GUIDIsCreature` / `GUIDIsPet` / `GUIDIsGameObject`
 
 Type checks on the raw 1.12 GUID format. Vanilla GUIDs encode the
