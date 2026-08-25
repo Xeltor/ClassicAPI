@@ -10996,6 +10996,25 @@ C_PlayerInfo.CanUseItem(12717)  -- Plans: Lionheart Helm → false without the A
 > (`C_Item.RequestLoadItemDataByID`) and re-check on `ITEM_DATA_LOAD_RESULT`
 > if needed.
 
+### `C_PlayerInfo.GetComboPointState()`
+
+Returns the local player's combo-point count and the opaque GUID of the unit
+that owns those points:
+
+```lua
+local points, targetGUID = C_PlayerInfo.GetComboPointState()
+```
+
+Unlike stock `GetComboPoints()`, this does not hide the count when another unit
+is selected. That makes target swaps lossless for decision addons: points can
+remain attached to their real unit instead of becoming a player-wide scalar.
+`targetGUID` uses the same `0xHHHHHHHHLLLLLLLL` representation as `UnitGUID`.
+
+The function returns `0, nil` when no points exist and `nil` before the local
+player object is available. It is read-only and does not select, resolve, or
+name the target. The pair is read from the same CGPlayer fields used by the
+stock combo-point function.
+
 ### `C_PlayerInfo.GUIDIsPlayer(guid)` / `GUIDIsCreature` / `GUIDIsPet` / `GUIDIsGameObject`
 
 Type checks on the raw 1.12 GUID format. Vanilla GUIDs encode the
@@ -11447,6 +11466,26 @@ if C_Spell.DoesSpellExist(133) then
     local info = C_Spell.GetSpellInfo(133)  -- safe
 end
 ```
+
+### `C_Spell.GetSpellDurationRange(spellID)`
+
+Returns `baseSeconds, maxSeconds, comboScaled` from the spell's
+`SpellDuration.dbc` row. Player duration SpellMods are applied to both
+endpoints. Like the other `C_Spell` functions, the argument may be a numeric ID,
+spell link, or known spell name.
+
+For combo-scaled finishers, the server duration at `points` is:
+
+```lua
+local base, maximum, comboScaled = C_Spell.GetSpellDurationRange(spellID)
+local duration = base + (maximum - base) * points / 5
+```
+
+For example, the stock rows describe Rupture as 6 to 16 seconds, Kidney Shot
+as 1 to 6 seconds, and Slice and Dice as 6 to 21 seconds. Fixed-duration rows
+return equal endpoints and `false`. Infinite-duration rows return
+`0, 0, false`. A missing spell, missing duration row, or dangling custom-server
+row returns `nil`; callers must retain a conservative fallback for that case.
 
 ### `C_Spell.GetSchoolString(schoolMask)`
 
